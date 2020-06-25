@@ -23,6 +23,7 @@ bool criteria_is_empty(struct criteria *criteria) {
 		&& !criteria->con_id
 #if HAVE_XWAYLAND
 		&& !criteria->class
+		&& !criteria->transient_for
 		&& !criteria->id
 		&& !criteria->instance
 		&& !criteria->window_role
@@ -317,6 +318,50 @@ static bool criteria_matches_view(struct criteria *criteria,
 			return false;
 		}
 	}
+
+	if (criteria->transient_for) {
+		uint32_t transient_for = view_get_x11_parent_id(view);
+		char string[9];
+		sway_log(SWAY_ERROR,"meem %i", transient_for);
+		
+		if (transient_for != 0) {
+			sprintf(string, "%08x", transient_for);
+		} else {
+			memcpy(string," ", 9);
+		}
+		
+		sway_log(SWAY_ERROR,"meem %s", string);
+		
+		char string2[9];
+		if (focused) {
+			uint32_t id = view_get_x11_parent_id(focused);
+			
+			if (id != 0) {
+				sprintf(string2, "%08x", id);
+			} else {
+				memcpy(string2," ", 9);
+			}
+
+			sway_log(SWAY_ERROR,"meem %i", id);
+		}
+
+		if (!transient_for) {
+			return false;
+		}
+
+		switch (criteria->transient_for->match_type) {
+		case PATTERN_FOCUSED:
+			if (focused && strcmp(string, string2)) {
+				return false;
+			}
+			break;
+		case PATTERN_PCRE:
+			if (regex_cmp(string, criteria->transient_for->regex) != 0) {
+				return false;
+			}
+			break;
+		}
+	}
 #endif
 
 	if (criteria->floating) {
@@ -459,6 +504,7 @@ enum criteria_token {
 	T_INSTANCE,
 	T_WINDOW_ROLE,
 	T_WINDOW_TYPE,
+	T_TRANSIENT_FOR,
 #endif
 	T_SHELL,
 	T_TILING,
@@ -484,6 +530,8 @@ static enum criteria_token token_from_name(char *name) {
 		return T_ID;
 	} else if (strcmp(name, "instance") == 0) {
 		return T_INSTANCE;
+	} else if (strcmp(name, "transient_for") == 0) { 
+		return T_TRANSIENT_FOR;
 	} else if (strcmp(name, "window_role") == 0) {
 		return T_WINDOW_ROLE;
 	} else if (strcmp(name, "window_type") == 0) {
@@ -565,6 +613,9 @@ static bool parse_token(struct criteria *criteria, char *name, char *value) {
 		break;
 	case T_INSTANCE:
 		pattern_create(&criteria->instance, value);
+		break;
+	case T_TRANSIENT_FOR:
+		pattern_create(&criteria->transient_for, value);
 		break;
 	case T_WINDOW_ROLE:
 		pattern_create(&criteria->window_role, value);

@@ -40,6 +40,7 @@ struct criteria {
 	uint32_t id; // X11 window ID
 	struct pattern *instance;
 	struct pattern *window_role;
+	struct pattern *transient_for;
 	enum atom_name window_type;
 #endif
 	bool floating;
