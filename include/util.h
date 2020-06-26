@@ -43,4 +43,6 @@ const char *sway_wl_output_subpixel_to_string(enum wl_output_subpixel subpixel);
 
 bool sway_set_cloexec(int fd, bool cloexec);
 
+void sway_uint32_t_to_char(uint32_t number, char* str);
+
 #endif

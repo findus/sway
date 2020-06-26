@@ -108,3 +108,17 @@ bool sway_set_cloexec(int fd, bool cloexec) {
 	}
 	return true;
 }
+
+
+void sway_uint32_t_to_char(uint32_t number, char* str) {
+
+    if (strlen(str) < 9) {
+        return;
+    }
+
+    if (number != 0) {
+        sprintf(str, "%08x", number);
+    } else {
+        memcpy(str, " ", 9);
+    }
+}

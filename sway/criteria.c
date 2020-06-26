@@ -14,6 +14,7 @@
 #include "list.h"
 #include "log.h"
 #include "config.h"
+#include "util.h"
 
 bool criteria_is_empty(struct criteria *criteria) {
 	return !criteria->title
@@ -320,43 +321,23 @@ static bool criteria_matches_view(struct criteria *criteria,
 	}
 
 	if (criteria->transient_for) {
-		uint32_t transient_for = view_get_x11_parent_id(view);
-		char string[9];
-		sway_log(SWAY_ERROR,"meem %i", transient_for);
-		
-		if (transient_for != 0) {
-			sprintf(string, "%08x", transient_for);
-		} else {
-			memcpy(string," ", 9);
-		}
-		
-		sway_log(SWAY_ERROR,"meem %s", string);
-		
-		char string2[9];
+		char transient_for[9];
+		sway_uint32_t_to_char(view_get_x11_parent_id(view), transient_for);
+
+		char transient_for_focused[9];
 		if (focused) {
-			uint32_t id = view_get_x11_parent_id(focused);
-			
-			if (id != 0) {
-				sprintf(string2, "%08x", id);
-			} else {
-				memcpy(string2," ", 9);
-			}
-
-			sway_log(SWAY_ERROR,"meem %i", id);
-		}
-
-		if (!transient_for) {
-			return false;
+			sway_uint32_t_to_char(
+					view_get_x11_parent_id(focused), transient_for_focused);
 		}
 
 		switch (criteria->transient_for->match_type) {
 		case PATTERN_FOCUSED:
-			if (focused && strcmp(string, string2)) {
+			if (focused && strcmp(transient_for, transient_for_focused)) {
 				return false;
 			}
 			break;
 		case PATTERN_PCRE:
-			if (regex_cmp(string, criteria->transient_for->regex) != 0) {
+			if (regex_cmp(transient_for, criteria->transient_for->regex) != 0) {
 				return false;
 			}
 			break;
