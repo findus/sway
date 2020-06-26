@@ -1,6 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <strings.h>
 #include <pcre.h>

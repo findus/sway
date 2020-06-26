@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <strings.h>
 #include <wayland-server-protocol.h>
 #include "log.h"
