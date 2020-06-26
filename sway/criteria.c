@@ -93,6 +93,7 @@ void criteria_destroy(struct criteria *criteria) {
 	pattern_destroy(criteria->class);
 	pattern_destroy(criteria->instance);
 	pattern_destroy(criteria->window_role);
+	pattern_destroy(criteria->transient_for);
 #endif
 	pattern_destroy(criteria->con_mark);
 	free(criteria->workspace);
